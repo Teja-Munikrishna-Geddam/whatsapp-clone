@@ -11,3 +11,70 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+/* General Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body, html, #root {
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden; /* Prevent body scroll */
+}
+
+/* --- Responsive Media Queries --- */
+
+/* Mobile Devices */
+@media (max-width: 767px) {
+  .sidebar {
+    width: 100% !important;
+    position: absolute;
+    z-index: 10;
+    transition: transform 0.3s ease;
+  }
+
+  /* If a contact is selected, hide the sidebar on mobile */
+  .sidebar.hidden-mobile {
+    transform: translateX(-100%);
+  }
+
+  .chat-window {
+    width: 100% !important;
+    position: absolute;
+    left: 0;
+    height: 100%;
+  }
+}
+
+/* Tablets */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .sidebar {
+    width: 300px !important;
+  }
+  .chat-window {
+    flex: 1;
+  }
+}
+
+/* Large Desktops */
+@media (min-width: 1025px) {
+  .app-container {
+    max-width: 1600px;
+    margin: 0 auto; /* Center the app on huge screens */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .sidebar {
+    width: 400px !important;
+  }
+}

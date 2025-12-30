@@ -1,17 +1,26 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import { SocketProvider } from './context/SocketContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
+// We get the user ID here once before the app starts
+const getUserId = () => {
+  try {
+    const savedUser = JSON.parse(localStorage.getItem("chat_user"));
+    return savedUser ? savedUser.id : null;
+  } catch (e) {
+    return null;
+  }
+};
+
+const userId = getUserId();
+
 root.render(
   <React.StrictMode>
-    <App />
+    <SocketProvider userId={userId}>
+      <App />
+    </SocketProvider>
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
