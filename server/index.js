@@ -138,4 +138,4 @@ app.get('/api/messages/:convoId', async (req, res) => {
     }
 });
 
-server.listen(5001, () => console.log("🚀 Server running on port 5001"));
+server.listen(5000, () => console.log("🚀 Server running on port 5000"));

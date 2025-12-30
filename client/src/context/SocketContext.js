@@ -8,7 +8,7 @@ export const SocketProvider = ({ children, userId }) => {
     const [onlineUsers, setOnlineUsers] = useState([]);
 
     useEffect(() => {
-        const newSocket = io("http://localhost:5001");
+        const newSocket = io("http://localhost:5000");
         setSocket(newSocket);
 
         // This ensures that as soon as a user logs in, the socket identifies them

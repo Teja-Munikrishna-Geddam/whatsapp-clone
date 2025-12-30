@@ -25,7 +25,7 @@ function App() {
   // 1. Fetch Contacts
   useEffect(() => {
     if (user && user.id) {
-      axios.get(`http://localhost:5001/api/users/${user.id}`)
+      axios.get(`http://localhost:5000/api/users/${user.id}`)
         .then(res => setContacts(res.data))
         .catch(err => console.error("Error fetching users:", err));
     }
