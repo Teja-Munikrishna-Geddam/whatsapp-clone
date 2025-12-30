@@ -15,18 +15,23 @@ const io = new Server(server, {
 });
 
 // PostgreSQL Connection
-const db = new Pool({
-    connectionString: process.env.DATABASE_URL
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  // This part is CRITICAL for Render databases
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
-// Test Database Connection on startup
-db.connect((err) => {
-    if (err) {
-        console.error('❌ DATABASE CONNECTION ERROR:', err.stack);
-    } else {
-        console.log('✅ DATABASE CONNECTED SUCCESSFULLY');
-    }
+pool.connect((err) => {
+  if (err) {
+    console.error('❌ DATABASE CONNECTION ERROR:', err.stack);
+  } else {
+    console.log('✅ Connected to Render PostgreSQL');
+  }
 });
+
+module.exports = pool;
 
 let onlineUsers = new Map();
 
