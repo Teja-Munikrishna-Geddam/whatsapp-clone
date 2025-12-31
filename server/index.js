@@ -6,8 +6,12 @@ const { Pool } = require('pg');
 require('dotenv').config();
 
 const app = express();
+
+// --- 1. Middleware ---
 app.use(cors());
 app.use(express.json());
+
+// Content Security Policy
 app.use((req, res, next) => {
     res.setHeader(
         "Content-Security-Policy",
@@ -17,58 +21,44 @@ app.use((req, res, next) => {
     next();
 });
 
+// --- 2. Database Connection (The Missing Part) ---
+const db = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false } // Required for Render
+});
+
+db.query('SELECT NOW()', (err) => {
+    if (err) console.error('❌ DATABASE CONNECTION ERROR:', err.message);
+    else console.log('✅ DATABASE CONNECTED SUCCESSFULLY');
+});
+
+// --- 3. Socket.io Setup ---
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "*",
+        origin: "*", // Allows your frontend to connect from anywhere
         methods: ["GET", "POST"]
     }
 });
 
+// --- 4. Routes ---
 
-
-let onlineUsers = new Map();
-
-io.on('connection', (socket) => {
-    socket.on("register_user", (userId) => {
-        onlineUsers.set(String(userId), socket.id);
-        socket.join(`user_${userId}`);
-        console.log(`User ${userId} is now online with Socket ID: ${socket.id}`); // Check this log!
-        io.emit("get_online_users", Array.from(onlineUsers.keys()));
-    });
-
-    socket.on("send_private_message", async (data) => {
-        // Note: The frontend sends 'message_text', not 'message'
-        const { senderId, recipientId, message_text, conversationId } = data;
-
-        try {
-            await db.query(
-                "INSERT INTO messages (conversation_id, sender_id, message_text) VALUES ($1, $2, $3)",
-                [conversationId, senderId, message_text]
-            );
-
-            io.to(`user_${recipientId}`).emit("receive_message", {
-                senderId,
-                message_text, // Use the variable from 'data'
-                conversationId
-            });
-        } catch (err) {
-            console.error("❌ SOCKET MESSAGE ERROR:", err.message);
-        }
-    });
-
-    socket.on("disconnect", () => {
-        for (let [userId, socketId] of onlineUsers.entries()) {
-            if (socketId === socket.id) {
-                onlineUsers.delete(userId);
-                break;
-            }
-        }
-        io.emit("get_online_users", Array.from(onlineUsers.keys()));
-    });
+// FIX: Root Route (Stops the "Cannot GET /" 404 error)
+app.get('/', (req, res) => {
+    res.send("🚀 WhatsApp Clone Backend is Live and Connected!");
 });
 
-// API: Login
+// Debug Route
+app.get('/debug-db', async (req, res) => {
+    try {
+        const result = await db.query("SELECT * FROM users");
+        res.json({ status: "Success", data: result.rows });
+    } catch (err) {
+        res.status(500).json({ status: "Error", error: err.message });
+    }
+});
+
+// Login API
 app.post('/api/login', async (req, res) => {
     const { username, email } = req.body;
     try {
@@ -81,27 +71,24 @@ app.post('/api/login', async (req, res) => {
         }
         res.json(user.rows[0]);
     } catch (err) {
-        console.error("❌ LOGIN ROUTE ERROR:", err.message);
-        res.status(500).json({ error: err.message }); // Sends the real error to Frontend
+        res.status(500).json({ error: err.message });
     }
 });
 
-// API: Fetch Users
+// Fetch Users API
 app.get('/api/users/:currentUserId', async (req, res) => {
     try {
-        const { currentUserId } = req.params;
         const users = await db.query(
             "SELECT id, username, avatar_url FROM users WHERE id != $1",
-            [currentUserId]
+            [req.params.currentUserId]
         );
         res.json(users.rows);
     } catch (err) {
-        console.error("❌ FETCH USERS ERROR:", err.message);
         res.status(500).send(err.message);
     }
 });
 
-// API: Conversation ID
+// Get/Create Conversation API
 app.get('/api/conversation/:userOne/:userTwo', async (req, res) => {
     const { userOne, userTwo } = req.params;
     try {
@@ -117,25 +104,62 @@ app.get('/api/conversation/:userOne/:userTwo', async (req, res) => {
         }
         res.json(convo.rows[0]);
     } catch (err) {
-        console.error("❌ CONVERSATION ROUTE ERROR:", err.message);
         res.status(500).send(err.message);
     }
 });
 
-// API: Messages
+// Fetch Messages API
 app.get('/api/messages/:convoId', async (req, res) => {
     try {
-        const { convoId } = req.params;
         const messages = await db.query(
             "SELECT * FROM messages WHERE conversation_id = $1 ORDER BY created_at ASC",
-            [convoId]
+            [req.params.convoId]
         );
         res.json(messages.rows);
     } catch (err) {
-        console.error("❌ FETCH MESSAGES ERROR:", err.message);
         res.status(500).send(err.message);
     }
 });
 
+// --- 5. Socket Logic ---
+let onlineUsers = new Map();
 
-server.listen(5000, () => console.log("🚀 Server running on port 5000"));
+io.on('connection', (socket) => {
+    socket.on("register_user", (userId) => {
+        onlineUsers.set(String(userId), socket.id);
+        socket.join(`user_${userId}`);
+        io.emit("get_online_users", Array.from(onlineUsers.keys()));
+    });
+
+    socket.on("send_private_message", async (data) => {
+        const { senderId, recipientId, message_text, conversationId } = data;
+        try {
+            await db.query(
+                "INSERT INTO messages (conversation_id, sender_id, message_text) VALUES ($1, $2, $3)",
+                [conversationId, senderId, message_text]
+            );
+            io.to(`user_${recipientId}`).emit("receive_message", {
+                senderId,
+                message_text,
+                conversationId
+            });
+        } catch (err) {
+            console.error("❌ SOCKET ERROR:", err.message);
+        }
+    });
+
+    socket.on("disconnect", () => {
+        for (let [userId, socketId] of onlineUsers.entries()) {
+            if (socketId === socket.id) {
+                onlineUsers.delete(userId);
+                break;
+            }
+        }
+        io.emit("get_online_users", Array.from(onlineUsers.keys()));
+    });
+});
+
+// --- 6. Start Server ---
+// IMPORTANT: Render uses process.env.PORT, not always 5000
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
