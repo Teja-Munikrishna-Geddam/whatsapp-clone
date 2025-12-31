@@ -74,10 +74,6 @@ io.on('connection', (socket) => {
     });
 });
 
-app.get('/', (req, res) => {
-  res.send('✅ WhatsApp Clone Backend is Running and Connected to Database!');
-});
-
 // API: Login
 app.post('/api/login', async (req, res) => {
     const { username, email } = req.body;
