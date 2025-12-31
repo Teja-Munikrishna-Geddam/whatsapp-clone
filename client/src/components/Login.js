@@ -7,7 +7,7 @@ const Login = ({ setUser }) => {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/login", { username, email });
+      const res = await axios.post("https://whatsapp-clone-g9vw.onrender.com/api/login", { username, email });
       localStorage.setItem("chat_user", JSON.stringify(res.data));
       setUser(res.data);
 
