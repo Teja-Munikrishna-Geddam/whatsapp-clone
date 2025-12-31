@@ -22,23 +22,6 @@ const io = new Server(server, {
     cors: { origin: "http://localhost:3000" }
 });
 
-// PostgreSQL Connection
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    // This part is CRITICAL for Render databases
-    ssl: {
-        rejectUnauthorized: false
-    }
-});
-
-pool.connect((err) => {
-    if (err) {
-        console.error('❌ DATABASE CONNECTION ERROR:', err.stack);
-    } else {
-        console.log('✅ Connected to Render PostgreSQL');
-    }
-});
-
 
 
 let onlineUsers = new Map();
@@ -151,6 +134,5 @@ app.get('/api/messages/:convoId', async (req, res) => {
     }
 });
 
-module.exports = pool;
 
 server.listen(5000, () => console.log("🚀 Server running on port 5000"));
