@@ -8,7 +8,8 @@ const Login = ({ setUser }) => {
   const handleLogin = async () => {
     try {
       // 1. Send the data to the backend
-      const res = await axios.post("http://localhost:5000/api/login", {
+      // CHANGE THIS:
+      const res = await axios.post("https://whatsapp-clone-g9vw.onrender.com/api/login", {
         username,
         email
       });
