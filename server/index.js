@@ -8,6 +8,14 @@ require('dotenv').config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use((req, res, next) => {
+    res.setHeader(
+        "Content-Security-Policy",
+        "default-src 'self'; " +
+        "connect-src 'self' https://whatsapp-clone-g9vw.onrender.com wss://whatsapp-clone-g9vw.onrender.com;"
+    );
+    next();
+});
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -16,19 +24,19 @@ const io = new Server(server, {
 
 // PostgreSQL Connection
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  // This part is CRITICAL for Render databases
-  ssl: {
-    rejectUnauthorized: false
-  }
+    connectionString: process.env.DATABASE_URL,
+    // This part is CRITICAL for Render databases
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 pool.connect((err) => {
-  if (err) {
-    console.error('❌ DATABASE CONNECTION ERROR:', err.stack);
-  } else {
-    console.log('✅ Connected to Render PostgreSQL');
-  }
+    if (err) {
+        console.error('❌ DATABASE CONNECTION ERROR:', err.stack);
+    } else {
+        console.log('✅ Connected to Render PostgreSQL');
+    }
 });
 
 
