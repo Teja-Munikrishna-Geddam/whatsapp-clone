@@ -7,17 +7,23 @@ const Login = ({ setUser }) => {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post("https://whatsapp-clone-g9vw.onrender.com/api/login", { username, email });
+      // 1. Send the data to the backend
+      const res = await axios.post("https://whatsapp-clone-g9vw.onrender.com/api/login", {
+        username,
+        email
+      });
+
+      // 2. If successful, save the user
       localStorage.setItem("chat_user", JSON.stringify(res.data));
       setUser(res.data);
 
-      // CRITICAL: This reloads the whole app so SocketProvider gets the new userId
-      window.location.href = "/";
+      // 3. Navigate to the main chat page (don't use window.location if using React Router)
+      // If you aren't using a router, window.location.href = "/" is fine.
     } catch (err) {
-      console.error("Login failed", err);
+      console.error("Login failed:", err.response?.data || err.message);
+      alert("Login failed! Check console for details.");
     }
   };
-
   return (
     <div style={{ textAlign: 'center', marginTop: '100px' }}>
       <h2>Welcome to WhatsApp Clone</h2>

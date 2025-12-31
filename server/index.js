@@ -31,7 +31,7 @@ pool.connect((err) => {
   }
 });
 
-module.exports = pool;
+
 
 let onlineUsers = new Map();
 
@@ -142,5 +142,7 @@ app.get('/api/messages/:convoId', async (req, res) => {
         res.status(500).send(err.message);
     }
 });
+
+module.exports = pool;
 
 server.listen(5000, () => console.log("🚀 Server running on port 5000"));
