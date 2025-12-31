@@ -8,10 +8,10 @@ export const SocketProvider = ({ children, userId }) => {
     const [onlineUsers, setOnlineUsers] = useState([]);
 
     useEffect(() => {
-        const newSocket = io("http://localhost:5000");
+        // CHANGE THIS LINE:
+        const newSocket = io("https://whatsapp-clone-g9vw.onrender.com");
         setSocket(newSocket);
 
-        // This ensures that as soon as a user logs in, the socket identifies them
         if (userId) {
             newSocket.emit("register_user", userId);
         }
