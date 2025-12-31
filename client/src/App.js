@@ -38,14 +38,14 @@ function App() {
         try {
           // 1. Get the Conversation ID for these two users
           const convoRes = await axios.get(
-            `http://localhost:5000/api/conversation/${user.id}/${activeContact.id}`
+            `https://whatsapp-clone-g9vw.onrender.com/api/conversation/${user.id}/${activeContact.id}`
           );
           const convoId = convoRes.data.id;
           setCurrentConvoId(convoId);
 
           // 2. Fetch all previous messages for this conversation
           const msgRes = await axios.get(
-            `http://localhost:5000/api/messages/${convoId}`
+            `https://whatsapp-clone-g9vw.onrender.com/api/messages/${convoId}`
           );
 
           // 3. Update the UI with the history
