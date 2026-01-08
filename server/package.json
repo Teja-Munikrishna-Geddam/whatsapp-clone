@@ -1,16 +1,21 @@
 {
+  "name": "whatsapp-clone-backend",
+  "version": "1.0.0",
+  "description": "Backend for WhatsApp Clone",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
   "dependencies": {
-    "axios": "^1.13.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "lucide-react": "^0.561.0",
     "pg": "^8.16.3",
-    "socket.io": "^4.8.3",
-    "socket.io-client": "^4.8.1",
-    "type": "commonjs"
+    "socket.io": "^4.8.3"
   },
   "devDependencies": {
-    "gh-pages": "^6.3.0"
+    "nodemon": "^3.1.11"
   }
 }
