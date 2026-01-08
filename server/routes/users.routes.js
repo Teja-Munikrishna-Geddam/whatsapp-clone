@@ -1,4 +1,4 @@
-import express from "express";
+const express = require("express");
 import pool from "../db/pool.js";
 
 const router = express.Router();
@@ -15,4 +15,4 @@ router.get("/:currentUserId", async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

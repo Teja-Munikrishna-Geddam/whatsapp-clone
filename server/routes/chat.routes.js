@@ -1,4 +1,4 @@
-export default function socketHandler(io, pool) {
+module.exports = function socketHandler(io, pool) {
   const onlineUsers = new Map();
 
   io.on("connection", (socket) => {
