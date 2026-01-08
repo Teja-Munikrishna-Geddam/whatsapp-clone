@@ -1,18 +1,12 @@
-import { Pool } from 'pg';
+const { Pool } = require("pg");
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  // This is the "Secret Sauce" for Render
-  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+  ssl: { rejectUnauthorized: false }
 });
 
-pool.query('SELECT NOW()', (err, res) => {
-  if (err) {
-    console.error('❌ DATABASE CONNECTION ERROR:', err.message);
-  } else {
-    console.log('✅ DATABASE CONNECTED SUCCESSFULLY');
-  }
-});
+pool.query("SELECT NOW()")
+  .then(() => console.log("✅ DB connected"))
+  .catch(err => console.error("❌ DB error:", err.message));
 
-
-export default pool;
+module.exports = pool;
