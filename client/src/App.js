@@ -78,7 +78,7 @@ function App() {
           ...prev,
           {
             sender_id: data.senderId, // Keep original ID for logic
-            senderId: data.senderId,    // For ChatWindow bubble alignment
+            senderId: data.senderId === user.id ? "me" : data.senderId,
             message_text: data.message_text,
             conversationId: data.conversationId
           }

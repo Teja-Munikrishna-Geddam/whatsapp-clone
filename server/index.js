@@ -61,19 +61,48 @@ app.get('/debug-db', async (req, res) => {
 // Login API
 app.post('/api/login', async (req, res) => {
     const { username, email } = req.body;
+
+    if (!username || !email) {
+        return res.status(400).json({ error: "Username and email required" });
+    }
+
     try {
-        let user = await db.query("SELECT * FROM users WHERE email = $1", [email]);
-        if (user.rows.length === 0) {
-            user = await db.query(
-                "INSERT INTO users (username, email) VALUES ($1, $2) RETURNING *",
-                [username, email]
-            );
+        // 1️⃣ Check by email
+        let userByEmail = await db.query(
+            "SELECT * FROM users WHERE email = $1",
+            [email]
+        );
+
+        if (userByEmail.rows.length > 0) {
+            return res.json(userByEmail.rows[0]);
         }
-        res.json(user.rows[0]);
+
+        // 2️⃣ Check username conflict
+        let userByUsername = await db.query(
+            "SELECT * FROM users WHERE username = $1",
+            [username]
+        );
+
+        if (userByUsername.rows.length > 0) {
+            return res.status(409).json({
+                error: "Username already taken"
+            });
+        }
+
+        // 3️⃣ Create new user
+        const newUser = await db.query(
+            "INSERT INTO users (username, email) VALUES ($1, $2) RETURNING *",
+            [username, email]
+        );
+
+        res.json(newUser.rows[0]);
+
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error("LOGIN ERROR:", err.message);
+        res.status(500).json({ error: "Server error" });
     }
 });
+
 
 // Fetch Users API
 app.get('/api/users/:currentUserId', async (req, res) => {

@@ -8,20 +8,18 @@ export const SocketProvider = ({ children, userId }) => {
     const [onlineUsers, setOnlineUsers] = useState([]);
 
     useEffect(() => {
-        // CHANGE THIS LINE:
+        if (!userId) return;
+
         const newSocket = io("https://whatsapp-clone-g9vw.onrender.com");
         setSocket(newSocket);
 
-        if (userId) {
-            newSocket.emit("register_user", userId);
-        }
+        newSocket.emit("register_user", userId);
 
-        newSocket.on("get_online_users", (users) => {
-            setOnlineUsers(users);
-        });
+        newSocket.on("get_online_users", setOnlineUsers);
 
-        return () => newSocket.close();
+        return () => newSocket.disconnect();
     }, [userId]);
+
 
     return (
         <SocketContext.Provider value={{ socket, onlineUsers }}>
