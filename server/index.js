@@ -10,7 +10,7 @@ const pool = require("./db/pool");
 // routes
 const authRoutes = require("./routes/auth.routes");
 const usersRoutes = require("./routes/users.routes");
-const chatRoutes = require("./routes/chat.routes").default;
+const chatRoutes = require("./routes/chat.routes");
 
 // sockets
 const socketHandler = require("./sockets/socket");
