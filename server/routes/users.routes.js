@@ -1,5 +1,5 @@
 const express = require("express");
-import pool from "../db/pool.js";
+const pool = require("../db/pool");
 
 const router = express.Router();
 
