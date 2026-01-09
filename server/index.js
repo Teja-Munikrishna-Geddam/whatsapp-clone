@@ -15,25 +15,31 @@ const chatRoutes = require("./routes/chat.routes");
 const socketHandler = require("./sockets/socket");
 
 const app = express();
+app.use(express.json());
 
 /* ---------------- MIDDLEWARE ---------------- */
 const cors = require("cors");
 
-app.use(cors({
+const corsOptions = {
   origin: "https://teja-munikrishna-geddam.github.io",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
-}));
+};
 
-// ✅ THIS automatically handles OPTIONS safely in Express 5
+// 1️⃣ Apply CORS to all normal requests
+app.use(cors(corsOptions));
+
+// 2️⃣ Apply CORS explicitly to preflight requests
 app.use((req, res, next) => {
   if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
+    return cors(corsOptions)(req, res, () => {
+      res.sendStatus(204);
+    });
   }
   next();
 });
 
-app.use(express.json());
+
 
 /* ---------------- ROUTES ---------------- */
 app.get("/", (_, res) => {
