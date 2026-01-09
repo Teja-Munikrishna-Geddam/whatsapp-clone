@@ -13,7 +13,7 @@ const Login = ({ setUser }) => {
 
     try {
       const res = await axios.post(
-        "https://whatsapp-clone-g9vw.onrender.com/api/login",
+        "https://whatsapp-clone-lhb1.onrender.com/api/login",
         { username, email }
       );
 
