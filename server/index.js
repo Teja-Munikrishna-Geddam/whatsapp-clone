@@ -9,6 +9,7 @@ const pool = require("./db/pool");
 const authRoutes = require("./routes/auth.routes");
 const userRoutes = require("./routes/users.routes");
 const socketHandler = require("./sockets/socket");
+const chatRoutes = require("./routes/chat.routes");
 
 const app = express();
 const server = http.createServer(app);
@@ -31,6 +32,7 @@ app.use(express.json());
 /* ✅ ROUTES (THIS WAS MISSING) */
 app.use("/api", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/chats", chatRoutes);
 
 /* 🔍 HEALTH CHECK */
 app.get("/", (req, res) => {
