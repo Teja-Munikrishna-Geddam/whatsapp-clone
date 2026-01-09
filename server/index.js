@@ -20,24 +20,12 @@ app.use(express.json());
 /* ---------------- MIDDLEWARE ---------------- */
 const cors = require("cors");
 
-const corsOptions = {
+app.use(cors({
   origin: "https://teja-munikrishna-geddam.github.io",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
-};
+}));
 
-// 1️⃣ Apply CORS to all normal requests
-app.use(cors(corsOptions));
-
-// 2️⃣ Apply CORS explicitly to preflight requests
-app.use((req, res, next) => {
-  if (req.method === "OPTIONS") {
-    return cors(corsOptions)(req, res, () => {
-      res.sendStatus(204);
-    });
-  }
-  next();
-});
 
 
 
