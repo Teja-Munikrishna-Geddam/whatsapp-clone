@@ -22,12 +22,17 @@ const cors = require("cors");
 app.use(cors({
   origin: "https://teja-munikrishna-geddam.github.io",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: false
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-// IMPORTANT: handle preflight explicitly
-app.options("*", cors());
+// ✅ THIS automatically handles OPTIONS safely in Express 5
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+  next();
+});
+
 app.use(express.json());
 
 /* ---------------- ROUTES ---------------- */
