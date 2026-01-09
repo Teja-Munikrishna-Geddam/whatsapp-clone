@@ -46,6 +46,10 @@ app.use("/api", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chats", chatRoutes);
 
+app.get("/api/login-test", (req, res) => {
+  res.json({ ok: true });
+});
+
 /* 🔍 HEALTH CHECK */
 app.get("/", (req, res) => {
   res.send("Backend OK");
