@@ -18,9 +18,17 @@ const socketHandler = require("./sockets/socket");
 const app = express();
 
 /* ---------------- MIDDLEWARE ---------------- */
+const cors = require("cors");
+
 app.use(cors({
-  origin: "https://teja-munikrishna-geddam.github.io"
+  origin: "https://teja-munikrishna-geddam.github.io",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: false
 }));
+
+// IMPORTANT: handle preflight explicitly
+app.options("*", cors());
 app.use(express.json());
 
 /* ---------------- ROUTES ---------------- */
