@@ -6,6 +6,12 @@ const router = express.Router();
 router.post("/login", async (req, res) => {
   const { username, email } = req.body;
 
+  res.json({
+    id: 1,
+    username: req.body.username,
+    email: req.body.email
+  });
+
   if (!username || !email) {
     return res.status(400).json({ error: "Username & email required" });
   }
