@@ -1,56 +1,28 @@
 require("dotenv").config();
 
 const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
-
-const pool = require("./db/pool");
-
-// routes
-const authRoutes = require("./routes/auth.routes");
-const usersRoutes = require("./routes/users.routes");
-const chatRoutes = require("./routes/chat.routes");
-
-// sockets
-const socketHandler = require("./sockets/socket");
-
-const app = express();
-app.use(express.json());
-
-/* ---------------- MIDDLEWARE ---------------- */
 const cors = require("cors");
 
+const app = express();
+
+/* 🔥 CORS MUST BE FIRST */
 app.use(cors({
-  origin: "https://teja-munikrishna-geddam.github.io",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  origin: "https://teja-munikrishna-geddam.github.io"
 }));
 
+app.use(express.json());
 
-
-
-/* ---------------- ROUTES ---------------- */
-app.get("/", (_, res) => {
-  res.send("🚀 WhatsApp Clone Backend Running");
+/* 🔍 TEST ROUTE */
+app.get("/", (req, res) => {
+  res.send("Backend OK");
 });
 
-app.use("/api", authRoutes);
-app.use("/api/users", usersRoutes);
-app.use("/api", chatRoutes);
-
-/* ---------------- SOCKET ---------------- */
-const server = http.createServer(app);
-
-const io = new Server(server, {
-  cors: {
-    origin: "https://teja-munikrishna-geddam.github.io"
-  }
+/* 🔐 LOGIN ROUTE */
+app.post("/api/login", (req, res) => {
+  res.json({ status: "login route reached" });
 });
 
-socketHandler(io, pool);
-
-/* ---------------- START SERVER ---------------- */
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () =>
-  console.log(`🚀 Server running on port ${PORT}`)
-);
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
+});
