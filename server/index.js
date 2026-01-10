@@ -58,9 +58,20 @@ app.get("/", (req, res) => {
 /* 🔌 SOCKET.IO */
 const io = new Server(server, {
   cors: {
-    origin: "https://teja-munikrishna-geddam.github.io"
+    origin: "https://teja-munikrishna-geddam.github.io",
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
+
+io.on("connection", (socket) => {
+  console.log("🟢 Socket connected:", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("🔴 Socket disconnected");
+  });
+});
+
 
 socketHandler(io, pool);
 
