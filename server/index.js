@@ -41,6 +41,8 @@ app.use((req, res, next) => {
   next();
 });
 
+
+
 /* ✅ ROUTES (THIS WAS MISSING) */
 app.use("/api", authRoutes);
 app.use("/api/users", userRoutes);
@@ -54,6 +56,9 @@ app.get("/api/login-test", (req, res) => {
 app.get("/", (req, res) => {
   res.send("Backend OK");
 });
+
+const initDB = require("./db/init");
+initDB(pool);
 
 /* 🔌 SOCKET.IO */
 const io = new Server(server, {
