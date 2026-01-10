@@ -39,4 +39,3 @@ async function initDB() {
 
 module.exports = initDB;
 
-initDB();
