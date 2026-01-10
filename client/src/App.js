@@ -25,7 +25,7 @@ function App() {
   // 1. Fetch Contacts
   useEffect(() => {
     if (user && user.id) {
-      axios.get(`https://whatsapp-clone-g9vw.onrender.com/api/users/${user.id}`)
+      axios.get(`https://whatsapp-clone-lhb1.onrender.com/api/users/${user.id}`)
         .then(res => setContacts(res.data))
         .catch(err => console.error("Error fetching users:", err));
     }
@@ -38,14 +38,14 @@ function App() {
         try {
           // 1. Get the Conversation ID for these two users
           const convoRes = await axios.get(
-            `https://whatsapp-clone-g9vw.onrender.com/api/conversation/${user.id}/${activeContact.id}`
+            `https://whatsapp-clone-lhb1.onrender.com/api/conversation/${user.id}/${activeContact.id}`
           );
           const convoId = convoRes.data.id;
           setCurrentConvoId(convoId);
 
           // 2. Fetch all previous messages for this conversation
           const msgRes = await axios.get(
-            `https://whatsapp-clone-g9vw.onrender.com/api/messages/${convoId}`
+            `https://whatsapp-clone-lhb1.onrender.com/api/messages/${convoId}`
           );
 
           // 3. Update the UI with the history
