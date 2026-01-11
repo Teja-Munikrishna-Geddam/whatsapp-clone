@@ -10,6 +10,7 @@ const authRoutes = require("./routes/auth.routes");
 const userRoutes = require("./routes/users.routes");
 const socketHandler = require("./sockets/socket");
 const chatRoutes = require("./routes/chat.routes");
+const conversationRoutes = require("./routes/conversation.routes");
 
 const app = express();
 const server = http.createServer(app);
@@ -47,6 +48,8 @@ app.use((req, res, next) => {
 app.use("/api", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chats", chatRoutes);
+app.use("/api/conversation", conversationRoutes);
+/* 🔍 LOGIN TEST */
 
 app.get("/api/login-test", (req, res) => {
   res.json({ ok: true });
