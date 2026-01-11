@@ -5,84 +5,92 @@ import ChatWindow from "./components/ChatWindow";
 import Login from "./components/Login";
 import { useSocket } from "./context/SocketContext";
 
+const API = "https://whatsapp-clone-lhb1.onrender.com";
+
 function App() {
   const [user, setUser] = useState(() => {
     try {
       const saved = localStorage.getItem("chat_user");
       return saved ? JSON.parse(saved) : null;
-    } catch (error) {
-      console.error("Invalid user data in localStorage");
+    } catch {
       return null;
     }
   });
+
   const [contacts, setContacts] = useState([]);
   const [activeContact, setActiveContact] = useState(null);
-  const [messages, setMessages] = useState([]);
   const [currentConvoId, setCurrentConvoId] = useState(null);
+  const [messages, setMessages] = useState([]);
+
   const { socket, onlineUsers } = useSocket();
 
-
-  // 1. Fetch Contacts
+  /* --------------------------------------------------
+     1️⃣ FETCH CONTACTS
+  -------------------------------------------------- */
   useEffect(() => {
-    if (user && user.id) {
-      axios.get(`https://whatsapp-clone-lhb1.onrender.com/api/users/${user.id}`)
-        .then(res => setContacts(res.data))
-        .catch(err => console.error("Error fetching users:", err));
-    }
+    if (!user?.id) return;
+
+    axios
+      .get(`${API}/api/users/${user.id}`)
+      .then(res => setContacts(res.data))
+      .catch(err => console.error("Fetch users error:", err));
   }, [user]);
 
-  // CLEAR messages when switching contacts
+  /* --------------------------------------------------
+     2️⃣ LOAD / CREATE CONVERSATION (ON CONTACT CLICK)
+  -------------------------------------------------- */
   useEffect(() => {
-    setMessages([]);
-    setCurrentConvoId(null);
-  }, [activeContact]);
+    if (!activeContact || !user) return;
 
-
-  // 2. Fetch Message History when clicking a contact
-  useEffect(() => {
     const loadConversation = async () => {
-      if (!activeContact || !user) return;
-
       try {
-        // 1️⃣ Get conversation
-        const convoRes = await axios.get(
-          `https://whatsapp-clone-lhb1.onrender.com/api/conversation/${user.id}/${activeContact.id}`
+        const res = await axios.get(
+          `${API}/api/conversation/${user.id}/${activeContact.id}`
         );
-
-        const convoId = convoRes.data.id;
-        setCurrentConvoId(convoId);
-
-        // 2️⃣ Load messages ONLY for this conversation
-        const msgRes = await axios.get(
-          `https://whatsapp-clone-lhb1.onrender.com/api/messages/${convoId}`
-        );
-
-        const formatted = msgRes.data.map(m => ({
-          ...m,
-          senderId: m.sender_id === user.id ? "me" : m.sender_id
-        }));
-
-        setMessages(formatted);
-
+        setCurrentConvoId(res.data.id);
       } catch (err) {
-        console.error("Error loading chat history:", err);
-        setMessages([]);
+        console.error("Conversation error:", err);
       }
     };
 
     loadConversation();
   }, [activeContact, user]);
 
-  // Triggered every time you click a different contact
+  /* --------------------------------------------------
+     3️⃣ LOAD MESSAGES (WHEN CONVERSATION CHANGES)
+  -------------------------------------------------- */
+  useEffect(() => {
+    if (!currentConvoId) return;
 
-  // 3. Listen for incoming socket messages
+    const loadMessages = async () => {
+      try {
+        const res = await axios.get(
+          `${API}/api/messages/${currentConvoId}`
+        );
+
+        setMessages(
+          res.data.map(m => ({
+            ...m,
+            senderId: m.sender_id === user.id ? "me" : m.sender_id
+          }))
+        );
+      } catch (err) {
+        console.error("Message load error:", err);
+        setMessages([]);
+      }
+    };
+
+    loadMessages();
+  }, [currentConvoId, user]);
+
+  /* --------------------------------------------------
+     4️⃣ SOCKET LISTENER (STRICTLY PER CONVERSATION)
+  -------------------------------------------------- */
   useEffect(() => {
     if (!socket || !currentConvoId) return;
 
-    const handleMessage = (data) => {
-      if (String(data.conversationId) !== String(currentConvoId)) {
-        return; // 🔒 Ignore other conversations
-      }
+    const handler = (data) => {
+      if (String(data.conversationId) !== String(currentConvoId)) return;
 
       setMessages(prev => [
         ...prev,
@@ -94,22 +102,16 @@ function App() {
       ]);
     };
 
-    socket.on("receive_message", handleMessage);
-    return () => socket.off("receive_message", handleMessage);
+    socket.on("receive_message", handler);
+    return () => socket.off("receive_message", handler);
 
-  }, [socket, currentConvoId]);
+  }, [socket, currentConvoId, user]);
 
-
+  /* --------------------------------------------------
+     5️⃣ SEND MESSAGE
+  -------------------------------------------------- */
   const sendMessage = (text) => {
-    if (!socket) {
-      console.warn("Socket not connected yet");
-      return;
-    }
-
-    if (!currentConvoId || !activeContact) {
-      console.warn("No active conversation");
-      return;
-    }
+    if (!socket || !currentConvoId || !activeContact) return;
 
     const messageData = {
       senderId: user.id,
@@ -126,28 +128,34 @@ function App() {
     ]);
   };
 
-
+  /* --------------------------------------------------
+     6️⃣ LOGOUT
+  -------------------------------------------------- */
   const handleLogout = () => {
-    localStorage.removeItem("chat_user"); // Clear the saved user
-    setUser(null); // Reset state
-    window.location.reload(); // Refresh to reset socket connection
+    localStorage.removeItem("chat_user");
+    setUser(null);
+    window.location.reload();
   };
 
-  // If no user is logged in, show the Login screen
-  if (!user) {
-    return <Login setUser={setUser} />;
-  }
+  /* --------------------------------------------------
+     AUTH GUARD
+  -------------------------------------------------- */
+  if (!user) return <Login setUser={setUser} />;
 
-
-
-  // If user is logged in, show the main Chat UI
+  /* --------------------------------------------------
+     UI
+  -------------------------------------------------- */
   return (
-    <div style={{ display: "flex", height: "100vh", width: "100vw", backgroundColor: "#f0f2f5" }}>
+    <div style={{ display: "flex", height: "100vh", width: "100vw" }}>
       <Sidebar
         contacts={contacts}
-        onSelectContact={setActiveContact}
         onlineUsers={onlineUsers}
         onLogout={handleLogout}
+        onSelectContact={(contact) => {
+          setActiveContact(contact);
+          setMessages([]);        // 🔥 CRITICAL RESET
+          setCurrentConvoId(null);
+        }}
       />
 
       {activeContact ? (
@@ -157,15 +165,17 @@ function App() {
           sendMessage={sendMessage}
         />
       ) : (
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: '#f0f2f5' }}>
-          <div style={{ width: '250px', height: '250px', opacity: 0.5, backgroundImage: 'url(https://static.whatsapp.net/rsrc.php/v3/y6/r/wa669ae5z23.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat' }} />
-          <h1 style={{ color: '#41525d', marginTop: '20px', fontWeight: '300' }}>WhatsApp Web</h1>
-          <p style={{ color: '#667781' }}>Send and receive messages without keeping your phone online.</p>
+        <div style={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }}>
+          Select a chat to start messaging
         </div>
       )}
     </div>
   );
 }
 
-// THIS MUST BE AT THE VERY BOTTOM AT THE TOP LEVEL
 export default App;
