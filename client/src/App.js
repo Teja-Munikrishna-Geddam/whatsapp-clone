@@ -31,12 +31,20 @@ function App() {
     }
   }, [user]);
 
+  // CLEAR messages when switching contacts
+  useEffect(() => {
+    setMessages([]);
+    setCurrentConvoId(null);
+  }, [activeContact]);
+
+
   // 2. Fetch Message History when clicking a contact
   useEffect(() => {
-    const fetchChatHistory = async () => {
+    const loadConversation = async () => {
       if (!activeContact || !user) return;
 
       try {
+        // 1️⃣ Get conversation
         const convoRes = await axios.get(
           `https://whatsapp-clone-lhb1.onrender.com/api/conversation/${user.id}/${activeContact.id}`
         );
@@ -44,54 +52,53 @@ function App() {
         const convoId = convoRes.data.id;
         setCurrentConvoId(convoId);
 
-        if (!convoId) return;
-
+        // 2️⃣ Load messages ONLY for this conversation
         const msgRes = await axios.get(
           `https://whatsapp-clone-lhb1.onrender.com/api/messages/${convoId}`
         );
 
-        const formattedMessages = msgRes.data.map(m => ({
+        const formatted = msgRes.data.map(m => ({
           ...m,
           senderId: m.sender_id === user.id ? "me" : m.sender_id
         }));
 
-        setMessages(formattedMessages);
+        setMessages(formatted);
 
       } catch (err) {
         console.error("Error loading chat history:", err);
+        setMessages([]);
       }
     };
 
-    fetchChatHistory();
+    loadConversation();
   }, [activeContact, user]);
+
   // Triggered every time you click a different contact
 
   // 3. Listen for incoming socket messages
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !currentConvoId) return;
 
     const handleMessage = (data) => {
-      console.log("New message received:", data);
-
-      // Convert both to Strings to ensure the comparison works 100%
-      if (String(data.conversationId) === String(currentConvoId)) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            sender_id: data.senderId, // Keep original ID for logic
-            senderId: data.senderId === user.id ? "me" : data.senderId,
-            message_text: data.message_text,
-            conversationId: data.conversationId
-          }
-        ]);
+      if (String(data.conversationId) !== String(currentConvoId)) {
+        return; // 🔒 Ignore other conversations
       }
+
+      setMessages(prev => [
+        ...prev,
+        {
+          senderId: data.senderId === user.id ? "me" : data.senderId,
+          message_text: data.message_text,
+          conversationId: data.conversationId
+        }
+      ]);
     };
 
-
     socket.on("receive_message", handleMessage);
-
     return () => socket.off("receive_message", handleMessage);
+
   }, [socket, currentConvoId]);
+
 
   const sendMessage = (text) => {
     if (!socket) {
