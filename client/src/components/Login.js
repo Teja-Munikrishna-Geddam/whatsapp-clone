@@ -20,8 +20,6 @@ const Login = ({ setUser }) => {
       localStorage.setItem("chat_user", JSON.stringify(res.data));
       setUser(res.data);
 
-      // FORCE SOCKET CONTEXT TO RELOAD
-      window.location.reload();
 
     } catch (err) {
       if (err.response?.status === 409) {
