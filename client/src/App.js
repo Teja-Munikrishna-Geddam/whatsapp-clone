@@ -34,36 +34,37 @@ function App() {
   // 2. Fetch Message History when clicking a contact
   useEffect(() => {
     const fetchChatHistory = async () => {
-      if (activeContact && user) {
-        try {
-          // 1. Get the Conversation ID for these two users
-          const convoRes = await axios.get(
-            `https://whatsapp-clone-lhb1.onrender.com/api/conversation/${user.id}/${activeContact.id}`
-          );
-          const convoId = convoRes.data.id;
-          setCurrentConvoId(convoId);
+      if (!activeContact || !user) return;
 
-          // 2. Fetch all previous messages for this conversation
-          const msgRes = await axios.get(
-            `https://whatsapp-clone-lhb1.onrender.com/api/messages/${convoId}`
-          );
+      try {
+        const convoRes = await axios.get(
+          `${BACKEND_URL}/api/conversation/${user.id}/${activeContact.id}`
+        );
 
-          // 3. Update the UI with the history
-          // We format the senderId so the ChatWindow knows which side to show the bubble on
-          const formattedMessages = msgRes.data.map(m => ({
-            ...m,
-            senderId: m.sender_id === user.id ? "me" : m.sender_id
-          }));
+        const convoId = convoRes.data.id;
+        setCurrentConvoId(convoId);
 
-          setMessages(formattedMessages);
-        } catch (error) {
-          console.error("Error loading chat history:", error);
-        }
+        if (!convoId) return;
+
+        const msgRes = await axios.get(
+          `${BACKEND_URL}/api/messages/${convoId}`
+        );
+
+        const formattedMessages = msgRes.data.map(m => ({
+          ...m,
+          senderId: m.sender_id === user.id ? "me" : m.sender_id
+        }));
+
+        setMessages(formattedMessages);
+
+      } catch (err) {
+        console.error("Error loading chat history:", err);
       }
     };
 
     fetchChatHistory();
-  }, [activeContact, user]); // Triggered every time you click a different contact
+  }, [activeContact, user]);
+  // Triggered every time you click a different contact
 
   // 3. Listen for incoming socket messages
   useEffect(() => {
@@ -93,15 +94,31 @@ function App() {
   }, [socket, currentConvoId]);
 
   const sendMessage = (text) => {
+    if (!socket) {
+      console.warn("Socket not connected yet");
+      return;
+    }
+
+    if (!currentConvoId || !activeContact) {
+      console.warn("No active conversation");
+      return;
+    }
+
     const messageData = {
       senderId: user.id,
       recipientId: activeContact.id,
       message_text: text,
       conversationId: currentConvoId
     };
+
     socket.emit("send_private_message", messageData);
-    setMessages(prev => [...prev, { ...messageData, senderId: "me" }]);
+
+    setMessages(prev => [
+      ...prev,
+      { ...messageData, senderId: "me" }
+    ]);
   };
+
 
   const handleLogout = () => {
     localStorage.removeItem("chat_user"); // Clear the saved user
