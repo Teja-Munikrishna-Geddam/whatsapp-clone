@@ -38,7 +38,7 @@ function App() {
 
       try {
         const convoRes = await axios.get(
-          `${BACKEND_URL}/api/conversation/${user.id}/${activeContact.id}`
+          `https://whatsapp-clone-lhb1.onrender.com/api/conversation/${user.id}/${activeContact.id}`
         );
 
         const convoId = convoRes.data.id;
@@ -47,7 +47,7 @@ function App() {
         if (!convoId) return;
 
         const msgRes = await axios.get(
-          `${BACKEND_URL}/api/messages/${convoId}`
+          `https://whatsapp-clone-lhb1.onrender.com/api/messages/${convoId}`
         );
 
         const formattedMessages = msgRes.data.map(m => ({
