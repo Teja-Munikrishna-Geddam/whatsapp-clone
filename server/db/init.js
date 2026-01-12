@@ -16,13 +16,17 @@ async function initDB() {
       CREATE TABLE IF NOT EXISTS conversations (
         id SERIAL PRIMARY KEY,
         user_one_id INTEGER REFERENCES users(id),
-        user_two_id INTEGER REFERENCES users(id),
-        UNIQUE (
-        LEAST(user_one_id, user_two_id),
-                GREATEST(user_one_id, user_two_id)
-              )
+        user_two_id INTEGER REFERENCES users(id)
+      );
+    `);
 
-              );
+    // ✅ UNIQUE INDEX FOR PAIR (ORDER-INDEPENDENT)
+    await pool.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS unique_conversation_pair
+      ON conversations (
+        LEAST(user_one_id, user_two_id),
+        GREATEST(user_one_id, user_two_id)
+      );
     `);
 
     await pool.query(`
@@ -42,4 +46,3 @@ async function initDB() {
 }
 
 module.exports = initDB;
-
