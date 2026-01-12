@@ -10,6 +10,7 @@ const authRoutes = require("./routes/auth.routes");
 const userRoutes = require("./routes/users.routes");
 const socketHandler = require("./sockets/socket");
 const chatRoutes = require("./routes/chat.routes");
+const messageRoutes = require("./routes/messages.routes");
 const conversationRoutes = require("./routes/conversation.routes");
 
 const app = express();
@@ -49,6 +50,7 @@ app.use("/api", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/conversation", conversationRoutes);
+app.use("/api/messages", messageRoutes);
 /* 🔍 LOGIN TEST */
 
 app.get("/api/login-test", (req, res) => {

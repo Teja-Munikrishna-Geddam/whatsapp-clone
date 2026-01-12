@@ -21,7 +21,6 @@ function App() {
   const [activeContact, setActiveContact] = useState(null);
   const [currentConvoId, setCurrentConvoId] = useState(null);
   const [messages, setMessages] = useState([]);
-
   const { socket, onlineUsers } = useSocket();
 
   /* --------------------------------------------------
@@ -81,7 +80,8 @@ function App() {
     };
 
     loadMessages();
-  }, [currentConvoId, user]);
+  }, [currentConvoId, user.id]);
+
 
   /* --------------------------------------------------
      4️⃣ SOCKET LISTENER (STRICTLY PER CONVERSATION)
@@ -89,7 +89,9 @@ function App() {
   useEffect(() => {
     if (!socket || !currentConvoId) return;
 
-    const handler = (data) => {
+    const handleMessage = (data) => {
+
+      // 🔒 THIS LINE PREVENTS MESSAGE LEAKING
       if (String(data.conversationId) !== String(currentConvoId)) return;
 
       setMessages(prev => [
@@ -102,10 +104,12 @@ function App() {
       ]);
     };
 
-    socket.on("receive_message", handler);
-    return () => socket.off("receive_message", handler);
+    socket.on("receive_message", handleMessage);
 
-  }, [socket, currentConvoId, user]);
+    return () => socket.off("receive_message", handleMessage);
+
+  }, [socket, currentConvoId, user.id]);
+
 
   /* --------------------------------------------------
      5️⃣ SEND MESSAGE
