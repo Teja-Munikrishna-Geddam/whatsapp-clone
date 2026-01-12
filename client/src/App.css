@@ -23,7 +23,7 @@ body, html, #root {
 /* Mobile Devices */
 @media (max-width: 767px) {
   .sidebar {
-    width: 100% !important;
+    width: 95% !important;
     position: absolute;
     z-index: 10;
     transition: transform 0.3s ease;
@@ -35,7 +35,7 @@ body, html, #root {
   }
 
   .chat-window {
-    width: 100% !important;
+    width: 95% !important;
     position: absolute;
     left: 0;
     height: 100%;
@@ -55,7 +55,7 @@ body, html, #root {
 /* Large Desktops */
 @media (min-width: 1025px) {
   .app-container {
-    max-width: 1600px;
+    max-width: 1400px;
     margin: 0 auto; /* Center the app on huge screens */
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
