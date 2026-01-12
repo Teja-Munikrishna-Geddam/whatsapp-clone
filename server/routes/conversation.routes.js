@@ -1,43 +1,28 @@
-const express = require("express");
-const pool = require("../db/pool");
-
-const router = express.Router();
-
-// Get or create conversation
 router.get("/:userOne/:userTwo", async (req, res) => {
-    const { userOne, userTwo } = req.params;
+  const u1 = Number(req.params.userOne);
+  const u2 = Number(req.params.userTwo);
 
-    try {
-        // 1️⃣ Check existing conversation
-        const existing = await pool.query(
-            `
-      SELECT id FROM conversations
-      WHERE (user_one_id = $1 AND user_two_id = $2)
-         OR (user_one_id = $2 AND user_two_id = $1)
-      `,
-            [userOne, userTwo]
-        );
+  const a = Math.min(u1, u2);
+  const b = Math.max(u1, u2);
 
-        if (existing.rows.length > 0) {
-            return res.json(existing.rows[0]);
-        }
+  try {
+    const existing = await pool.query(
+      "SELECT id FROM conversations WHERE user_one_id=$1 AND user_two_id=$2",
+      [a, b]
+    );
 
-        // 2️⃣ Create new conversation
-        const created = await pool.query(
-            `
-      INSERT INTO conversations (user_one_id, user_two_id)
-      VALUES ($1, $2)
-      RETURNING id
-      `,
-            [userOne, userTwo]
-        );
-
-        return res.json(created.rows[0]);
-
-    } catch (err) {
-        console.error("Conversation error:", err);
-        return res.status(500).json({ error: "Conversation failed" });
+    if (existing.rows.length) {
+      return res.json(existing.rows[0]);
     }
-});
 
-module.exports = router;
+    const created = await pool.query(
+      "INSERT INTO conversations (user_one_id, user_two_id) VALUES ($1,$2) RETURNING id",
+      [a, b]
+    );
+
+    res.json(created.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Conversation error" });
+  }
+});
