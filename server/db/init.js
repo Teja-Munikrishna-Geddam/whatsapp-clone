@@ -17,8 +17,12 @@ async function initDB() {
         id SERIAL PRIMARY KEY,
         user_one_id INTEGER REFERENCES users(id),
         user_two_id INTEGER REFERENCES users(id),
-        UNIQUE (user_one_id, user_two_id)
-      );
+        UNIQUE (
+        LEAST(user_one_id, user_two_id),
+                GREATEST(user_one_id, user_two_id)
+              )
+
+              );
     `);
 
     await pool.query(`
