@@ -10,7 +10,7 @@ export const SocketProvider = ({ children, userId }) => {
     useEffect(() => {
         if (!userId) return;
 
-        const newSocket = io("https://whatsapp-clone-lhb1.onrender.com",{
+        const newSocket = io("https://whatsapp-clone-wds9.onrender.com",{
             transports: ['websocket'],
             withCredentials: true
         });
