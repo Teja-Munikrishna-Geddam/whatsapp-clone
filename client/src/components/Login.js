@@ -12,8 +12,7 @@ const Login = ({ setUser }) => {
     }
 
     try {
-      const res = await axios.post(
-        "https://whatsapp-clone-lhb1.onrender.com/api/login",
+      const res = await axios.post(`${process.env.REACT_APP_API}/api/login`,
         { username, email }
       );
 
