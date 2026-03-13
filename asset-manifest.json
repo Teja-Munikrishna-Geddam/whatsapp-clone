@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/whatsapp-clone/static/js/main.32236d0b.js",
+    "main.js": "/whatsapp-clone/static/js/main.7f0d4264.js",
     "index.html": "/whatsapp-clone/index.html",
-    "main.32236d0b.js.map": "/whatsapp-clone/static/js/main.32236d0b.js.map"
+    "main.7f0d4264.js.map": "/whatsapp-clone/static/js/main.7f0d4264.js.map"
   },
   "entrypoints": [
-    "static/js/main.32236d0b.js"
+    "static/js/main.7f0d4264.js"
   ]
 }
