@@ -12,7 +12,7 @@ const Login = ({ setUser }) => {
     }
 
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API}/api/login`,
+      const res = await axios.post(`${API}/api/login`,
         { username, email }
       );
 

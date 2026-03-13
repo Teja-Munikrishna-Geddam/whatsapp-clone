@@ -39,7 +39,8 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "https://teja-munikrishna-geddam.github.io");
   res.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type");
-
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Origin", "https://whatsapp-clone-frontend-dt6j.onrender.com");
   if (req.method === "OPTIONS") {
     return res.sendStatus(204);
   }
@@ -71,7 +72,7 @@ initDB(pool);
 /* 🔌 SOCKET.IO */
 const io = new Server(server, {
   cors: {
-    origin: "https://teja-munikrishna-geddam.github.io",
+    origin: "https://whatsapp-clone-frontend-dt6j.onrender.com",
     methods: ["GET", "POST"],
     credentials: true
   }
