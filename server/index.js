@@ -20,6 +20,8 @@ const server = http.createServer(app);
 app.use(cors({
   origin: [
     "https://teja-munikrishna-geddam.github.io",
+    "https://whatsapp-clone-frontend-dt6j.onrender.com",
+    "https://teja-munikrishna-geddam.github.io/whatsapp-clone",
     "http://localhost:3000"
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

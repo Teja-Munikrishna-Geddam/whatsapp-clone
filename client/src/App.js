@@ -59,7 +59,7 @@ function App() {
      3️⃣ LOAD MESSAGES (WHEN CONVERSATION CHANGES)
   -------------------------------------------------- */
   useEffect(() => {
-    if (!currentConvoId) return;
+    if (!currentConvoId || !user?.id) return;
 
     const loadMessages = async () => {
       try {
@@ -80,7 +80,7 @@ function App() {
     };
 
     loadMessages();
-  }, [currentConvoId, user.id]);
+  }, [currentConvoId, user?.id]);
 
 
   /* --------------------------------------------------
@@ -108,7 +108,7 @@ function App() {
 
     return () => socket.off("receive_message", handleMessage);
 
-  }, [socket, currentConvoId, user.id]);
+  }, [socket, currentConvoId, user?.id]);
 
 
   /* --------------------------------------------------
