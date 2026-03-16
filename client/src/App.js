@@ -5,7 +5,7 @@ import ChatWindow from "./components/ChatWindow";
 import Login from "./components/Login";
 import { useSocket } from "./context/SocketContext";
 
-const API = process.env.REACT_APP_API || "https://whatsapp-clone-wds9.onrender.com";
+const API = REACT_APP_API;
 
 function App() {
   const [user, setUser] = useState(() => {
