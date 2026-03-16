@@ -5,7 +5,7 @@ import ChatWindow from "./components/ChatWindow";
 import Login from "./components/Login";
 import { useSocket } from "./context/SocketContext";
 
-const API = REACT_APP_API;
+const API = process.env.REACT_APP_API;
 
 function App() {
   const [user, setUser] = useState(() => {

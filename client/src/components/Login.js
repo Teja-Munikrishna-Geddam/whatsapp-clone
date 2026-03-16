@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const API = "https://whatsapp-clone-wds9.onrender.com";
+const API = process.env.REACT_APP_API;
 
 const Login = ({ setUser }) => {
   const [email, setEmail] = useState("");
